@@ -24,12 +24,12 @@ io.on('connection',(socket)=>{
     socket.emit('message','Welcome!') // emits to everybody
     socket.broadcast.emit('message', 'A new user has joined') // emits to everybody but not to the current user
 
-    socket.on('sendMessage', (message)=>{
-        io.emit('message', message)
+    socket.on('sendMessage', (message)=>{ // allows the server to listen for an event and respond to it
+        io.emit('message', message) // emits that message from server to all users
     })
 
-    socket.on('disconnect', ()=>{
-        io.emit('message', 'A user has left')
+    socket.on('disconnect', ()=>{ // socket.io's inbuild feature => disconnect
+        io.emit('message', 'A user has left') // emits this message to all users
     })
 
 })
