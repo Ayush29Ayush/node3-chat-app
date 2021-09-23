@@ -2,6 +2,9 @@
 
 const socket = io()
 
+//! server (emit) -> client (recieve) --acknowledgement--> server
+//! client (emit) -> server (recieve) --acknowledgement--> client
+
 socket.on('message', (message)=>{
     console.log(message)
 })
@@ -12,7 +15,16 @@ document.querySelector('#message-form').addEventListener('submit',(e)=>{
     // const message = document.querySelector('input').value
     const message = e.target.elements.message.value //! This is alternative of the above line
 
-    socket.emit('sendMessage', message)
+    //! here the 3rd parameter i.e the function runs for acknowledgement
+    socket.emit('sendMessage', message, (error)=>{
+        // console.log('The message was delivered!')
+        if (error) {
+            return console.log(error)
+        }
+
+        console.log('Message delivered')
+
+    })
 })
 
 document.querySelector('#send-location').addEventListener('click', ()=>{
@@ -26,13 +38,15 @@ document.querySelector('#send-location').addEventListener('click', ()=>{
             // these values are taken according to the chrome developer tools
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
+        }, ()=>{
+            console.log('Location shared')
         })
     })
 })
 
-//! Goal: Share coordinates with other users
-//1. Have client emit "sendLocation" with an object as the data
-//   - Object should contain latitide and longitude properties
-//2. Server should listen for "sendLocation"
-//   - When fired, send a "message" to all connected clients "Location: lat, long"
-//3. test your work!
+//! Goal: Setup acknowledgement
+
+//1. Setup the client acknowledgement function
+//2. Setup the server to send back the acknowledgement
+//3. have the client print "Location shared!" when acknowledged
+//4. Test your work
