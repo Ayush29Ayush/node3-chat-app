@@ -28,6 +28,11 @@ io.on('connection',(socket)=>{
         io.emit('message', message) // emits that message from server to all users
     })
 
+    socket.on('sendLocation', (coords)=>{
+        // io.emit('message', `Location: ${coords.latitude},${coords.longitude}`)
+        io.emit('message', `https://google.com/maps?q=${coords.latitude},${coords.longitude}`)
+    })
+
     socket.on('disconnect', ()=>{ // socket.io's inbuild feature => disconnect
         io.emit('message', 'A user has left') // emits this message to all users
     })
