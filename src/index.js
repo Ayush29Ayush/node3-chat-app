@@ -4,6 +4,8 @@ const express = require('express')
 const socketio = require('socket.io')
 const Filter = require('bad-words')
 
+const { generateMessage }= require('./utils/messages')
+
 const app = express()
 const server = http.createServer(app)
 const io = socketio(server)
@@ -23,17 +25,21 @@ app.use(express.static(publicDirectoryPath))
 io.on('connection',(socket)=>{
     console.log('New WebSocket connection')
 
-    socket.emit('message','Welcome!') // emits to everybody
-    socket.broadcast.emit('message', 'A new user has joined') // emits to everybody but not to the current user
+    // socket.emit('message', {
+    //     text: 'Welcome!',
+    //     createdAt: new Date().getTime()
+    // }) 
+    socket.emit('message', generateMessage('Welcome!')) 
+    socket.broadcast.emit('message', generateMessage('A new user has joined')) 
 
-    socket.on('sendMessage', (message, callback)=>{ // allows the server to listen for an event and respond to it
+    socket.on('sendMessage', (message, callback)=>{
         const filter = new Filter()
 
         if (filter.isProfane(message)) {
             return callback('Profanity is not allowed!')
         }
         
-        io.emit('message', message) // emits that message from server to all users
+        io.emit('message', generateMessage(message)) 
         // callback('Delivered your msg')
         callback() // this callback does nothing
     })
@@ -45,8 +51,8 @@ io.on('connection',(socket)=>{
         callback()
     })
 
-    socket.on('disconnect', ()=>{ // socket.io's inbuild feature => disconnect
-        io.emit('message', 'A user has left') // emits this message to all users
+    socket.on('disconnect', ()=>{ 
+        io.emit('message', generateMessage('A user has left')) 
     })
 
 })
