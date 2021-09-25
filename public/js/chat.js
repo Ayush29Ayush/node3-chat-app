@@ -11,6 +11,21 @@ const $messages = document.querySelector('#messages')
 
 //! Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML
+const locationMessageTemplate = document.querySelector('#location-message-template').innerHTML 
+
+//! Goal 1: Create a seperate event for location sharing messages
+//1. Have server emit "locationMessage" with the URL
+//2. Have the client listen for "locationMessage" and print the URL to the console
+//3. Test your work by sharing a location!
+
+//! Goal 2: Render new template for location messages
+//1. Duplicate the message template
+//   - Change the id to something else
+//2. Add a link inside the paragraph with the link text "My current location"
+//   - URL for link should be the maps URL (dynamic)
+//3. Select the template from JavaScript
+//4. Render the template with the URL and append to message list
+//5. Test your work!
 
 socket.on('message', (message)=>{
     console.log(message)
@@ -19,6 +34,15 @@ socket.on('message', (message)=>{
     })
     $messages.insertAdjacentHTML('beforeend', html)
 })
+
+socket.on('locationMessage', (url)=>{
+    console.log(url)
+    const html = Mustache.render(locationMessageTemplate, {
+        url: url
+    })
+    $messages.insertAdjacentHTML('beforeend', html)
+})
+
 
 // $messageForm.document.querySelector('#message-form').addEventListener('submit',(e)=>{
 $messageForm.addEventListener('submit',(e)=>{
