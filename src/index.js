@@ -5,6 +5,7 @@ const socketio = require('socket.io')
 const Filter = require('bad-words')
 
 const { generateMessage, generateLocationMessage }= require('./utils/messages')
+const { join } = require('path')
 
 const app = express()
 const server = http.createServer(app)
@@ -29,9 +30,24 @@ io.on('connection',(socket)=>{
     //     text: 'Welcome!',
     //     createdAt: new Date().getTime()
     // }) 
-    socket.emit('message', generateMessage('Welcome!')) 
-    socket.broadcast.emit('message', generateMessage('A new user has joined')) 
 
+    socket.on('join', ({ username , room })=>{
+        socket.join(room) // inbuild feature of socket.io to join a room
+
+        socket.emit('message', generateMessage('Welcome!')) 
+        // socket.broadcast.emit('message', generateMessage('A new user has joined'))
+        socket.broadcast.to(room).emit('message', generateMessage(`${username} has joined!`))
+    })
+
+    //! we've sent events from server to client using three methods =>
+    //1. socket.emit -> sends event from server to a specific client
+    //2. io.emit -> sends event to every connected client to the server
+    //3. socket.broadcast.emit -> sends event to every connected client except for itself
+
+    //! Two new approaches what we will use now =>
+    //1. io.to.emit -> it omits an event to everybody in a specific room so that's going to allow us to send a message to everyone in a room without sending it to people in other rooms
+    //2. socket.broadcast.to.emit -> sends an event to everyone expect for a specific client, bit it's limiting to a specific chat room
+    
     socket.on('sendMessage', (message, callback)=>{
         const filter = new Filter()
 
@@ -39,7 +55,10 @@ io.on('connection',(socket)=>{
             return callback('Profanity is not allowed!')
         }
         
-        io.emit('message', generateMessage(message)) 
+        // io.emit('message', generateMessage(message)) 
+        io.to('RoomDelhi').emit('message', generateMessage(message)) 
+
+
         // callback('Delivered your msg')
         callback() // this callback does nothing
     })

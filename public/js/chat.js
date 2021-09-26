@@ -2,7 +2,7 @@
 
 const socket = io()
 
-//Elements
+//!Elements
 const $messageForm = document.querySelector('#message-form')
 const $messageFormInput = $messageForm.querySelector('input')
 const $messageFormButton = $messageForm.querySelector('button')
@@ -13,13 +13,9 @@ const $messages = document.querySelector('#messages')
 const messageTemplate = document.querySelector('#message-template').innerHTML
 const locationMessageTemplate = document.querySelector('#location-message-template').innerHTML 
 
-//! Goal 1: Add timestamps for location messages\
-//1. Create generateLocationMessage and export
-//   - { url: '', createdAt: 0 }
-//2. Use generatedLocationMessage when server emits locationMessage
-//3. Update template to render time before the url
-//4. Compile the template with the URL and the formatted time
-//5. Test your work!
+//! Options
+// ignoreQueryPrefix: true se URL mein querystring(?) nahi dikhega
+const { username , room }  = Qs.parse(location.search, { ignoreQueryPrefix: true })
 
 socket.on('message', (message)=>{
     console.log(message)
@@ -88,4 +84,6 @@ $sendLocationButton.addEventListener('click', ()=>{
         })
     })
 })
+
+socket.emit('join', { username , room })
 
