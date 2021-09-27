@@ -31,55 +31,65 @@ app.use(express.static(publicDirectoryPath))
     //1. io.to.emit -> it omits an event to everybody in a specific room so that's going to allow us to send a message to everyone in a room without sending it to people in other rooms
     //2. socket.broadcast.to.emit -> sends an event to everyone expect for a specific client, bit it's limiting to a specific chat room
 
-io.on('connection',(socket)=>{
+//! Goal1 : Send message to correct room
+
+//1. Use getUser inside "sendMessage" event handler to get user data
+//2. Emit the message to their current room
+//3. Test your work!
+//4. Repeat for "sendLocation"
+
+//! Goal2 : Render suername for text messages
+//1. Setup the server to send username to client
+//2. Edit every call to "generateMessage" to include username
+//   - Use "Admin" for sts messages like connect/welcome/disconnect
+//3. Update client to render username in template
+//4. Test your work!
+
+io.on('connection', (socket) => {
     console.log('New WebSocket connection')
 
-    socket.on('join', ({ username , room }, callback)=>{
-        const { error, user} = addUser({ id: socket.id, username, room })
+    socket.on('join', (options, callback) => {
+        const { error, user } = addUser({ id: socket.id, ...options })
 
-        if (error) { // means error aaya
+        if (error) {
             return callback(error)
         }
-        
-        socket.join(user.room) // inbuild feature of socket.io to join a room
 
-        socket.emit('message', generateMessage('Welcome!')) 
-        // socket.broadcast.emit('message', generateMessage('A new user has joined'))
-        socket.broadcast.to(user.room).emit('message', generateMessage(`${user.username} has joined!`))
+        socket.join(user.room)
 
-        callback() // joined successfully without error
+        socket.emit('message', generateMessage('Admin', 'Welcome!'))
+        socket.broadcast.to(user.room).emit('message', generateMessage('Admin', `${user.username} has joined!`))
+
+        callback()
     })
-    
-    socket.on('sendMessage', (message, callback)=>{
+
+    socket.on('sendMessage', (message, callback) => {
+        const user = getUser(socket.id)
         const filter = new Filter()
 
         if (filter.isProfane(message)) {
             return callback('Profanity is not allowed!')
         }
-        
-        // io.emit('message', generateMessage(message)) 
-        io.to('RoomDelhi').emit('message', generateMessage(message)) 
 
-
-        // callback('Delivered your msg')
-        callback() // this callback does nothing
-    })
-
-    socket.on('sendLocation', (coords, callback)=>{
-    
-        io.emit('locationMessage', generateLocationMessage(`https://google.com/maps?q=${coords.latitude},${coords.longitude}`))
+        io.to(user.room).emit('message', generateMessage(user.username, message))
         callback()
     })
 
-    socket.on('disconnect', ()=>{ 
+    socket.on('sendLocation', (coords, callback) => {
+        const user = getUser(socket.id)
+        io.to(user.room).emit('locationMessage', generateLocationMessage(user.username, `https://google.com/maps?q=${coords.latitude},${coords.longitude}`))
+        callback()
+    })
+
+    socket.on('disconnect', () => {
         const user = removeUser(socket.id)
 
         if (user) {
-            io.to(user.room).emit('message', generateMessage(`${user.username} has left`)) 
+            io.to(user.room).emit('message', generateMessage('Admin', `${user.username} has left!`))
         }
     })
 })
 
-server.listen(port, ()=>{
+server.listen(port, () => {
     console.log(`Server is up on port ${port}!`)
 })
