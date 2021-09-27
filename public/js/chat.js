@@ -88,7 +88,7 @@ socket.emit('join', { username , room }, (error)=>{
     
     if (error) { //means error aaya
         alert(error) // shows the error in alert pop-up box
-        location.href = '/' // send user back to home page i.e the join page
+        location.href = '/' // send user back to default home page i.e the join page
     }
 })
 
