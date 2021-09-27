@@ -60,7 +60,6 @@ $messageForm.addEventListener('submit',(e)=>{
         }
 
         console.log('Message delivered')
-
     })
 })
 
@@ -85,5 +84,11 @@ $sendLocationButton.addEventListener('click', ()=>{
     })
 })
 
-socket.emit('join', { username , room })
+socket.emit('join', { username , room }, (error)=>{
+    
+    if (error) { //means error aaya
+        alert(error) // shows the error in alert pop-up box
+        location.href = '/' // send user back to home page i.e the join page
+    }
+})
 
