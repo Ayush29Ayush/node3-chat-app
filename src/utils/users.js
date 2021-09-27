@@ -45,30 +45,62 @@ const removeUser = (id) => {
     }
 }
 
+//! Goal: Create two new functions for users
+//1. Create getUser
+//   - Accept id and return user object ( or undefined )
+//2. Create getUsersInRoom
+//   - Accept room name and return array of users (or empty array)
+//3. Test your work by caling the functions!
+
+const getUser = (id) => {
+    return users.find((user)=> user.id === id)
+}
+
+const getUsersInRoom = (room) => {
+    room = room.trim().toLowerCase()
+    return users.filter((user) => user.room === room)
+}
+
+
+
 // 7. Testing the above code
 addUser({
     id:22,
     username: 'AYUSH',
     room: 'South Philly'
 })
-console.log(users)
-
-const result1 = addUser({
-    id: 33,
-    username: '',
-    room: ''
-})
-console.log(result1)
-
-const result2 = addUser({
-    id: 33,
-    username: 'AYUSH',
+addUser({
+    id:42,
+    username: 'Senapati',
     room: 'South Philly'
 })
-console.log(result2)
+console.log('Total users are => ', users)
 
-// 8. Testing remove user
+//! gives correct output 
+const user = getUser(22)
+// console.log(user)
 
-const removedUser = removeUser(22)
-console.log(removedUser)
-console.log(users)
+//! gives undefined since no user by that id
+const user1 = getUser(221)
+// console.log(user1)
+
+//! gives correct output
+const userList = getUsersInRoom('South Philly')
+console.log('The User List is => ',userList)
+
+//! gives undefined since no users by that room
+const userList1 = getUsersInRoom('Canada')
+console.log('The User List is => ',userList1)
+
+// // 8. Testing remove user
+
+// const removedUser = removeUser(22)
+// console.log(removedUser)
+// console.log(users)
+
+module.exports = {
+    addUser,
+    removeUser,
+    getUser,
+    getUsersInRoom
+}
